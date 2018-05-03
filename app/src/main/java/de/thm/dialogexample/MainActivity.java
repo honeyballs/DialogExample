@@ -15,13 +15,16 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+
 /**
  * Created by Yannick Bals on 03.05.2018.
  */
 
 public class MainActivity extends AppCompatActivity {
 
-    Button confButton, editButton, customButton;
+    private Button confButton, editButton, customButton, choiceButton;
+    private ArrayList<Integer> choices;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -32,10 +35,14 @@ public class MainActivity extends AppCompatActivity {
         confButton = findViewById(R.id.confDialogButton);
         editButton = findViewById(R.id.editDialogButton);
         customButton = findViewById(R.id.customDialogButton);
+        choiceButton = findViewById(R.id.choiceDialogButton);
         ButtonListener listener = new ButtonListener();
         confButton.setOnClickListener(listener);
         editButton.setOnClickListener(listener);
         customButton.setOnClickListener(listener);
+        choiceButton.setOnClickListener(listener);
+
+        choices = new ArrayList<>();
 
     }
 
@@ -148,6 +155,42 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void showChoiceDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Multiple Choice");
+
+        builder.setMultiChoiceItems(R.array.choice_items, null, new DialogInterface.OnMultiChoiceClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+                if (isChecked) {
+                    choices.add(which);
+                } else if (choices.contains(which)){
+                    choices.remove(Integer.valueOf(which));
+                }
+            }
+        });
+
+        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String selected = "";
+                for (int choice : choices) {
+                    selected += choice + " ";
+                }
+                Toast.makeText(MainActivity.this, "You selected the choices: " + selected, Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        builder.show();
+    }
+
     class ButtonListener implements View.OnClickListener {
 
         @Override
@@ -162,6 +205,9 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case R.id.customDialogButton:
                     showCustomDialog();
+                    break;
+                case R.id.choiceDialogButton:
+                    showChoiceDialog();
                     break;
                 default:
                     break;
